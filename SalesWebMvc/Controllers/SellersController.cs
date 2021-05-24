@@ -50,7 +50,7 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Seller seller)
         {
-            if (!ModelState.IsValid )
+            if (!ModelState.IsValid)
             {
                 var deparments = await _departmentService.FindAllAsync();
                 var viewModel = new SellerFormViewModel { Seller = seller, Department = deparments };
@@ -81,8 +81,15 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            await _sellerService.removeAsync(id);
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _sellerService.removeAsync(id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (IntegrityException ex)
+            {
+                return RedirectToAction(nameof(Error), new { message = ex.Message });                
+            }
         }
 
         public async Task<IActionResult> Details(int? id)

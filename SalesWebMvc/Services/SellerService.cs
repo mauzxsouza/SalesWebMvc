@@ -55,7 +55,7 @@ namespace SalesWebMvc.Services
             //Traz o Id e o restante dos dados do departamento
             return await _context.Seller.Include(obj => obj.Department).
                                          FirstOrDefaultAsync(obj => obj.Id == id);
-        }
+        } 
 
         public void remove(int id)
         {
@@ -66,9 +66,16 @@ namespace SalesWebMvc.Services
 
         public async Task removeAsync(int id)
         {
-            var obj = await _context.Seller.FindAsync(id);
-            _context.Seller.Remove(obj);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var obj = await _context.Seller.FindAsync(id);
+                _context.Seller.Remove(obj);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new IntegrityException(ex.Message + " Cannot Delete by the seller has sales.");
+            }
         }
         public void Update(Seller obj)
         {
